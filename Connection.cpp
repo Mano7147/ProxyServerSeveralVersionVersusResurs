@@ -4,13 +4,16 @@
 
 #include "Connection.h"
 
-Connection::Connection(int socket_read, int socket_write) {
+Connection::Connection(int socket_read, int socket_write, bool flag_from_client) {
     this->socket_read = socket_read;
     this->socket_write = socket_write;
 
     flag_closed = false;
 
     buffer = new Buffer(DEFAULT_BUFFER_SIZE);
+
+    this->flag_from_client = flag_from_client;
+    this->flag_handled_first_line = false;
 }
 
 int Connection::get_read_socket() {
@@ -83,6 +86,41 @@ int Connection::do_send() {
 
 void Connection::set_pair(Connection * pair) {
     this->pair = pair;
+}
+
+void Connection::set_buffer_data(char * data, size_t data_size) {
+    delete buffer;
+
+    buffer = new Buffer(data_size);
+
+    memcpy(buffer->get_start(), data, data_size);
+    buffer->do_move_end(data_size);
+}
+
+void Connection::set_buffer(Buffer * buffer) {
+    delete this->buffer;
+    this->buffer = buffer;
+}
+
+bool Connection::is_handled_first_line() {
+    return flag_handled_first_line;
+}
+
+void Connection::set_handled_first_line() {
+    flag_handled_first_line = true;
+}
+
+char * Connection::get_p_new_line() {
+    if (!flag_from_client) {
+        return NULL;
+    }
+
+    char * pos = strchr(buffer->get_start(), '\n');
+    return pos;
+}
+
+char * Connection::get_buffer_start() {
+    return buffer->get_start();
 }
 
 Connection::~Connection() {

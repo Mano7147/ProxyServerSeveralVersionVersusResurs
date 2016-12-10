@@ -33,6 +33,10 @@ public:
 
     void do_move_start(ssize_t sent);
 
+    void add_data_to_end(const char * from, size_t size_data);
+
+    void add_symbol_to_end(char c);
+
     ~Buffer();
 };
 

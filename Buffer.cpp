@@ -68,6 +68,23 @@ void Buffer::do_move_start(ssize_t sent) {
     start += sent;
 }
 
+void Buffer::add_data_to_end(const char * from, size_t size_data) {
+    while (end + size_data > size) {
+        do_resize(size * 2);
+    }
+
+    memcpy(buf + end, from, size_data);
+    end += size_data;
+}
+
+void Buffer::add_symbol_to_end(char c) {
+    while (end + 1 > size) {
+        do_resize(size * 2);
+    }
+
+    buf[end++] = c;
+}
+
 Buffer::~Buffer() {
     fprintf(stderr, "Destructor buffer\n");
     fprintf(stderr, "Size: %ld\n", size);
